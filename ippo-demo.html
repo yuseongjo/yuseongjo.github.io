@@ -1,0 +1,846 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>IPPO 라이브 데모</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap">
+<style>
+/* Layout: Apple-style scroll story. A sticky stage holds a caption column and an iPhone; each scroll step advances the IPPO day: alert → mission → airing out → proof → cheers → relay. */
+:root{
+  --paper:#FBFDFC;      /* page ground, white with a mint bias */
+  --ink:#0F231C;        /* headlines */
+  --body:#3D544C;       /* running text */
+  --muted:#7A8F87;      /* captions, meta */
+  --mint:#66E8BF;       /* IPPO brand mint */
+  --deep:#1C7054;       /* app primary button */
+  --mist:#EEF8F3;       /* soft panels */
+  --line:#D9ECE4;       /* hairlines */
+  --rose-a:#F3DADD; --rose-b:#D8B2B7;  /* pink iPhone edge, from the team mockup */
+  --night:#0B0F0E;      /* bezel, camera */
+  --f-display:"Pretendard","SF Pro Display",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  --f-body:"Pretendard","SF Pro Text",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  --nav:52px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--deep);outline-offset:3px;border-radius:8px}
+
+/* ---------- nav ---------- */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;height:var(--nav);display:flex;align-items:center;justify-content:space-between;padding-inline:clamp(16px,4vw,44px);background:rgba(251,253,252,.74);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid rgba(15,35,28,.06)}
+.nav .logo{height:20px;width:auto;color:var(--mint);display:block}
+.nav .right{display:flex;gap:18px;align-items:center;font-size:13px;color:var(--body)}
+.nav .right b{color:var(--ink);font-weight:600}
+[hidden]{display:none!important}
+
+/* ---------- hero ---------- */
+.hero{padding-inline:clamp(16px,4vw,44px);padding-block:clamp(72px,12vh,128px) 40px;text-align:center}
+.eyebrow{font-size:13px;font-weight:700;letter-spacing:.14em;color:var(--deep);text-transform:uppercase}
+.hero h1{font-family:var(--f-display);font-weight:800;font-size:clamp(44px,8.2vw,104px);line-height:1.02;letter-spacing:-.045em;margin:18px auto 0;text-wrap:balance;max-width:12ch}
+.hero h1 em{font-style:normal;background:linear-gradient(100deg,var(--deep) 10%,#2FBF8F 55%,var(--mint) 95%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{font-size:clamp(17px,2vw,21px);line-height:1.55;color:var(--body);max-width:34ch;margin:22px auto 0;text-wrap:balance}
+.cue{display:inline-flex;align-items:center;gap:10px;margin-top:34px;padding:10px 18px 10px 20px;border-radius:999px;background:var(--mist);color:var(--deep);font-size:14px;font-weight:600;border:1px solid var(--line);text-decoration:none}
+.cue svg{animation:bob 1.6s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(3px)}}
+
+/* ---------- story ---------- */
+.story{position:relative;height:760svh}
+.stage{position:sticky;top:calc(var(--nav) + env(safe-area-inset-top,0px));height:calc(100svh - var(--nav) - env(safe-area-inset-top,0px));max-width:1120px;margin:0 auto;padding-inline:clamp(16px,4vw,44px);display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:clamp(24px,6vw,96px);align-items:center;padding-bottom:64px}
+.caps{position:relative;height:min(380px,60%);min-width:0}
+.cap{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;opacity:0;transform:translateY(22px);transition:opacity .55s ease,transform .7s cubic-bezier(.2,.8,.2,1);pointer-events:none}
+.cap.on{opacity:1;transform:none;pointer-events:auto}
+.cap .step{font-size:13px;font-weight:700;letter-spacing:.12em;color:var(--deep);font-variant-numeric:tabular-nums}
+.cap h2{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,4.4vw,58px);line-height:1.08;letter-spacing:-.04em;margin:14px 0 0;text-wrap:balance}
+.cap p{font-size:clamp(16px,1.5vw,19px);line-height:1.62;color:var(--body);margin:18px 0 0;max-width:30ch}
+.cap .proof{margin-top:22px;display:inline-flex;align-items:baseline;gap:10px;font-size:14px;color:var(--body);padding:10px 14px;border-radius:14px;background:var(--mist);border:1px solid var(--line);align-self:flex-start;max-width:100%}
+.cap .proof b{font-size:22px;color:var(--deep);font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* rail */
+.rail{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);display:flex;gap:6px;padding:6px;border-radius:999px;background:rgba(255,255,255,.8);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);box-shadow:0 8px 24px -14px rgba(15,35,28,.3)}
+.rail button{border:0;background:transparent;padding:7px 13px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;transition:background .3s,color .3s}
+.rail button.on{background:var(--ink);color:#fff}
+.rail button.done{color:var(--deep)}
+
+/* ---------- phone ---------- */
+.phone-slot{position:relative;width:calc(300px * var(--s,1));height:calc(620px * var(--s,1))}
+.phone{position:absolute;left:0;top:0;width:300px;height:620px;transform:scale(var(--s,1));transform-origin:top left;border-radius:56px;padding:4px;background:linear-gradient(150deg,var(--rose-a),var(--rose-b) 60%,var(--rose-a));box-shadow:0 50px 90px -40px rgba(15,35,28,.45),0 18px 30px -18px rgba(15,35,28,.25)}
+.bezel{height:100%;border-radius:52px;background:var(--night);padding:9px}
+.screen{position:relative;height:100%;border-radius:43px;overflow:hidden;background:#fff;isolation:isolate}
+.island{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:94px;height:28px;border-radius:20px;background:#000;z-index:60}
+.status{position:absolute;top:0;left:0;right:0;height:48px;padding:16px 26px 0 30px;display:flex;justify-content:space-between;align-items:flex-start;font-size:14px;font-weight:600;z-index:55;color:var(--ink);transition:color .4s}
+.screen[data-tone="light"] .status{color:#fff}
+.status .icons{display:flex;gap:5px;align-items:center}
+.status svg{display:block;fill:currentColor}
+.homebar{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:108px;height:4px;border-radius:4px;background:var(--ink);opacity:.85;z-index:55;transition:background .4s}
+.screen[data-tone="light"] .homebar,.screen[data-scene="2"] .homebar{background:#fff}
+
+.scr{position:absolute;inset:0;opacity:0;transform:scale(1.035);transition:opacity .5s ease,transform .65s cubic-bezier(.2,.8,.2,1);pointer-events:none}
+.scr.on{opacity:1;transform:none}
+
+/* lock screen */
+.lock{background:radial-gradient(120% 70% at 20% 10%,#B6F5DF 0%,transparent 60%),radial-gradient(90% 60% at 90% 90%,#3FD3A3 0%,transparent 70%),linear-gradient(170deg,#7BEDC9,#55DDB2);color:#fff}
+.lock .ghost{position:absolute;right:-40px;bottom:30px;width:190px;color:#fff;opacity:.12}
+.lock .date{position:absolute;top:66px;width:100%;text-align:center;font-size:15px;font-weight:600;opacity:.92}
+.lock .time{position:absolute;top:84px;width:100%;text-align:center;font-family:var(--f-display);font-size:82px;font-weight:700;letter-spacing:-.04em;font-variant-numeric:tabular-nums;line-height:1}
+.lock .dock{position:absolute;bottom:36px;left:34px;right:34px;display:flex;justify-content:space-between}
+.lock .dock span{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.22);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:grid;place-items:center}
+.lock .dock svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:1.8}
+.banner{position:absolute;top:196px;left:9px;right:9px;padding:12px 13px 13px;border-radius:22px;background:rgba(255,255,255,.78);backdrop-filter:blur(22px) saturate(160%);-webkit-backdrop-filter:blur(22px) saturate(160%);color:var(--ink);display:flex;gap:11px;box-shadow:0 14px 30px -16px rgba(10,60,40,.45);opacity:0;transform:translateY(-36px) scale(.96);transition:opacity .45s ease,transform .7s cubic-bezier(.18,1.35,.4,1)}
+.banner.in{opacity:1;transform:none}
+.banner.in.buzz{animation:buzz .5s .55s 1}
+@keyframes buzz{20%{transform:translateX(-3px)}40%{transform:translateX(3px)}60%{transform:translateX(-2px)}80%{transform:translateX(2px)}}
+.appicon{flex:none;width:38px;height:38px;border-radius:10px;background:var(--mint);display:grid;place-items:center}
+.appicon svg{width:16px;color:#fff}
+.banner .txt{min-width:0;flex:1}
+.banner .row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+.banner .row b{color:var(--ink);font-weight:700;letter-spacing:.02em}
+.banner h4{margin:3px 0 0;font-size:14px;line-height:1.35;font-weight:700;letter-spacing:-.01em}
+.banner p{margin:3px 0 0;font-size:13px;line-height:1.42;color:var(--body)}
+.lock .hint{position:absolute;top:370px;width:100%;text-align:center;font-size:12px;opacity:0;transition:opacity .5s .4s}
+.banner.in ~ .hint{opacity:.9}
+
+/* app mission */
+.app{background:#fff;padding:58px 16px 0}
+.apphead{display:flex;justify-content:space-between;align-items:center}
+.apphead .logo{height:17px;color:var(--mint)}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:var(--mist);color:var(--deep);font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+.pill i{width:7px;height:7px;border-radius:50%;background:#2FBF8F;animation:pulse 1.4s infinite}
+@keyframes pulse{50%{opacity:.3}}
+.app .hello{margin-top:22px;font-size:12.5px;font-weight:600;color:var(--deep)}
+.app h3{margin:6px 0 0;font-family:var(--f-display);font-size:24px;font-weight:800;letter-spacing:-.03em;line-height:1.2}
+.energy{margin-top:14px;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--body)}
+.energy .bars{display:flex;gap:3px}
+.energy .bars span{width:16px;height:6px;border-radius:3px;background:var(--line)}
+.energy .bars span.f{background:var(--mint)}
+.mcard{margin-top:16px;border-radius:22px;padding:16px;background:linear-gradient(160deg,#F4FDF8,#FFFFFF);border:1px solid #D4EAE3}
+.mcard .top{display:flex;justify-content:space-between;font-size:12px;color:var(--deep);font-weight:600}
+.mcard .top span{display:flex;gap:6px;align-items:center}
+.mcard .top .min{color:var(--muted);font-weight:500}
+.mcard h5{margin:12px 0 0;font-size:19px;font-weight:800;letter-spacing:-.02em;line-height:1.3}
+.mcard p{margin:8px 0 0;font-size:13px;line-height:1.55;color:var(--body)}
+.btns{display:flex;align-items:center;gap:14px;margin-top:16px}
+.primary{position:relative;overflow:hidden;border:0;border-radius:14px;padding:12px 16px;background:var(--deep);color:#fff;font-size:14px;font-weight:700;transition:transform .2s}
+.ghostbtn{border:0;background:none;font-size:13.5px;color:var(--body);padding:0}
+.primary .rip{position:absolute;left:50%;top:50%;width:10px;height:10px;margin:-5px;border-radius:50%;background:rgba(255,255,255,.55);transform:scale(0);opacity:0}
+.app.tap .primary{transform:scale(.96)}
+.app.tap .primary .rip{animation:rip .7s ease-out forwards}
+@keyframes rip{0%{transform:scale(0);opacity:.8}100%{transform:scale(22);opacity:0}}
+.app .note{margin-top:14px;font-size:11.5px;color:var(--muted);display:flex;gap:6px;align-items:center}
+
+/* camera */
+.cam{background:var(--night);--open:0}
+.cam .view{position:absolute;left:0;right:0;top:0;height:76%;overflow:hidden;border-radius:0 0 26px 26px}
+.cam .view svg.room{width:100%;height:100%;display:block}
+.cam .front{position:absolute;top:56px;left:14px;width:72px;height:96px;border-radius:14px;border:2px solid #fff;overflow:hidden;background:linear-gradient(170deg,#D7E4DE,#B7CBC2);box-shadow:0 6px 16px rgba(0,0,0,.25);z-index:3}
+.cam .front svg{width:100%;height:100%}
+.cam .timer{position:absolute;top:58px;right:14px;z-index:3;padding:6px 10px;border-radius:999px;background:rgba(10,20,16,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+.cam .bracket{position:absolute;inset:170px 30px calc(24% + 22px);z-index:2;pointer-events:none}
+.cam .bracket i{position:absolute;width:22px;height:22px;border:2px solid rgba(255,255,255,.85)}
+.cam .bracket i:nth-child(1){left:0;top:0;border-right:0;border-bottom:0;border-radius:6px 0 0 0}
+.cam .bracket i:nth-child(2){right:0;top:0;border-left:0;border-bottom:0;border-radius:0 6px 0 0}
+.cam .bracket i:nth-child(3){left:0;bottom:0;border-right:0;border-top:0;border-radius:0 0 0 6px}
+.cam .bracket i:nth-child(4){right:0;bottom:0;border-left:0;border-top:0;border-radius:0 0 6px 0}
+.cam .controls{position:absolute;left:0;right:0;bottom:22px;display:flex;flex-direction:column;align-items:center;gap:12px;color:#fff}
+.cam .mode{font-size:11.5px;letter-spacing:.14em;font-weight:700;color:#FFE08A}
+.shutter{width:64px;height:64px;border-radius:50%;border:4px solid #fff;display:grid;place-items:center}
+.shutter span{width:50px;height:50px;border-radius:50%;background:#fff;transition:transform .18s}
+.cam.shot .shutter span{transform:scale(.82)}
+.flash{position:absolute;inset:0;background:#fff;opacity:0;z-index:20;pointer-events:none}
+.cam.shot .flash{animation:flash .6s ease-out 1}
+@keyframes flash{0%{opacity:.95}100%{opacity:0}}
+.curtain-l,.curtain-r{transform-box:fill-box;transition:transform .25s linear}
+.curtain-l{transform-origin:left center;transform:scaleX(calc(1 - .74 * var(--open)))}
+.curtain-r{transform-origin:right center;transform:scaleX(calc(1 - .74 * var(--open)))}
+.sash{transition:transform .25s linear;transform:translateX(calc(-76px * var(--open)))}
+.beam{opacity:calc(.5 * var(--open))}
+.breeze{opacity:var(--open);stroke-dasharray:26 60;animation:wind 2.2s linear infinite}
+.breeze:nth-of-type(2){animation-delay:-.7s}.breeze:nth-of-type(3){animation-delay:-1.4s}
+@keyframes wind{to{stroke-dashoffset:-172}}
+.clouds{animation:drift 14s linear infinite alternate}
+@keyframes drift{to{transform:translateX(26px)}}
+
+/* done */
+.done{background:linear-gradient(180deg,#F1FBF6,#FFFFFF 70%);display:flex;flex-direction:column;align-items:center;padding:74px 22px 0;text-align:center}
+.polar{width:208px;padding:10px 10px 14px;border-radius:18px;background:#fff;box-shadow:0 22px 40px -22px rgba(15,35,28,.45),0 0 0 1px rgba(15,35,28,.05);transform:rotate(-3deg) translateY(10px) scale(.96);transition:transform .8s cubic-bezier(.2,1.2,.4,1) .1s}
+.done.on .polar{transform:rotate(-3deg)}
+.polar svg{width:100%;height:auto;border-radius:12px;display:block}
+.polar small{display:block;margin-top:9px;font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.check{margin-top:24px;width:54px;height:54px;border-radius:50%;background:var(--deep);display:grid;place-items:center;transform:scale(.6);opacity:0;transition:transform .55s cubic-bezier(.2,1.5,.4,1) .35s,opacity .3s .35s}
+.done.on .check{transform:none;opacity:1}
+.check path{stroke-dasharray:30;stroke-dashoffset:30;transition:stroke-dashoffset .45s ease .7s}
+.done.on .check path{stroke-dashoffset:0}
+.done h3{margin:14px 0 0;font-family:var(--f-display);font-size:23px;font-weight:800;letter-spacing:-.03em}
+.done p{margin:6px 0 0;font-size:13px;color:var(--body)}
+.tags{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:14px}
+.tags span{font-size:11.5px;padding:5px 9px;border-radius:999px;background:var(--mist);color:var(--deep);font-weight:600}
+
+/* feed */
+.feed{background:#F6FAF8;padding:56px 12px 0}
+.feedhead{display:flex;justify-content:space-between;align-items:center;padding:0 4px}
+.feedhead h3{margin:0;font-family:var(--f-display);font-size:21px;font-weight:800;letter-spacing:-.03em}
+.seg{display:flex;background:#E7F1EC;border-radius:999px;padding:3px;font-size:11.5px;font-weight:600}
+.seg span{padding:4px 10px;border-radius:999px;color:var(--muted)}
+.seg span.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.post{margin-top:12px;background:#fff;border-radius:22px;padding:12px;border:1px solid #E3EFEA}
+.who{display:flex;gap:9px;align-items:center}
+.av{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;color:#fff}
+.who b{font-size:13px}
+.who small{display:block;font-size:11px;color:var(--muted)}
+.post .ph{margin-top:10px;border-radius:14px;overflow:hidden;height:150px}
+.post .ph svg{width:100%;height:100%;display:block}
+.reacts{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.reacts span{font-size:11.5px;font-weight:600;padding:6px 9px;border-radius:999px;background:#F2F7F5;color:var(--muted);transition:background .35s,color .35s,transform .35s}
+.reacts span.lit{background:#DDF8EE;color:var(--deep);transform:scale(1.04)}
+.toasts{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.toast{display:flex;align-items:center;gap:8px;padding:7px 10px 7px 7px;border-radius:16px;background:#fff;border:1px solid #E3EFEA;font-size:12.5px;opacity:0;transform:translateY(12px);transition:opacity .4s,transform .5s cubic-bezier(.2,1.3,.4,1)}
+.toast.show{opacity:1;transform:none}
+.toast .av{width:24px;height:24px;font-size:10px}
+.toast b{font-weight:700}
+.toast em{font-style:normal;color:var(--deep);font-weight:700}
+.nofight{margin-top:10px;font-size:11px;color:var(--muted);display:flex;gap:6px;align-items:center;justify-content:center}
+
+/* relay */
+.relay{background:#fff;padding:58px 18px 0}
+.mini{display:flex;gap:9px;align-items:center;padding:10px 11px;border-radius:18px;background:var(--mist);border:1px solid var(--line);font-size:12.5px;line-height:1.4;opacity:0;transform:translateY(-14px);transition:opacity .45s,transform .6s cubic-bezier(.2,1.3,.4,1)}
+.relay.on .mini{opacity:1;transform:none}
+.mini .appicon{width:28px;height:28px;border-radius:8px}
+.mini .appicon svg{width:12px}
+.relay h3{margin:22px 0 0;font-family:var(--f-display);font-size:25px;line-height:1.22;font-weight:800;letter-spacing:-.035em}
+.relay h3 span{color:var(--deep)}
+.path{margin-top:14px;width:100%;height:auto;display:block}
+.node{opacity:0;transform:scale(.6);transform-box:fill-box;transform-origin:center;transition:opacity .4s,transform .55s cubic-bezier(.2,1.5,.4,1)}
+.node.show{opacity:1;transform:none}
+.trail{stroke-dasharray:4 7}
+.robot{display:flex;gap:10px;align-items:center;margin-top:8px;padding:12px;border-radius:18px;background:linear-gradient(160deg,#F4FDF8,#fff);border:1px solid #D4EAE3;font-size:12.5px;line-height:1.45;color:var(--body)}
+.robot svg{flex:none}
+.relay .primary{width:100%;margin-top:14px}
+
+
+/* ---------- flip: "이게 끝이 아니에요" ---------- */
+.flip{position:relative;height:220svh;--f:0}
+.flip .hold{position:sticky;top:calc(var(--nav) + env(safe-area-inset-top,0px));height:calc(100svh - var(--nav) - env(safe-area-inset-top,0px));display:grid;place-items:center;overflow:hidden;padding-inline:clamp(16px,4vw,44px);background:color-mix(in srgb,var(--mint) calc(var(--f) * 100%),var(--paper))}
+.flip .lines{position:relative;width:100%;max-width:1000px;height:clamp(200px,34vh,320px);text-align:center;perspective:1200px}
+.flip .ln{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;backface-visibility:hidden;transition:opacity .2s linear}
+.flip .ln h2{margin:0;font-family:var(--f-display);font-weight:800;font-size:clamp(40px,7.6vw,100px);line-height:1.05;letter-spacing:-.05em;text-wrap:balance}
+.flip .ln p{margin:18px 0 0;font-size:clamp(16px,1.8vw,20px);color:var(--body)}
+.flip .ln.b p{color:var(--ink);opacity:.8}
+.flip .ln.b h2 em{font-style:normal;color:#fff;-webkit-text-stroke:0}
+.flip .orb{position:absolute;width:60vmax;height:60vmax;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.55),rgba(255,255,255,0) 60%);left:50%;top:50%;transform:translate(-50%,-50%) scale(calc(.4 + var(--f)));opacity:var(--f);pointer-events:none}
+
+/* ---------- story 2: chat ---------- */
+.story2{position:relative;height:560svh;background:linear-gradient(180deg,#E9FBF3,var(--paper) 18%)}
+.story2 .phone-col{perspective:1400px}
+.story2 .phone{transform-origin:150px 310px;transform:translate(calc(150px * (var(--s,1) - 1)),calc(310px * (var(--s,1) - 1))) scale(var(--s,1)) rotateY(var(--ry,0deg))}
+.chat{background:#fff}
+.chat .chead{position:absolute;top:48px;left:0;right:0;height:46px;display:flex;align-items:center;gap:9px;padding:0 14px;border-bottom:1px solid #EEF3F1;background:#fff;z-index:4}
+.chat .badge{height:26px;padding:0 8px;border-radius:8px;background:var(--mint);display:grid;place-items:center}
+.chat .badge svg{height:12px;color:#fff;display:block}
+.chat .chead b{font-size:13.5px}
+.chat .chead i{margin-left:auto;font-style:normal;letter-spacing:2px;color:var(--ink);font-weight:800}
+.home{position:absolute;top:120px;left:18px;right:18px;text-align:center;transition:opacity .4s,transform .5s}
+.home .ic{width:46px;height:46px;border-radius:13px;background:var(--mint);margin:0 auto;display:grid;place-items:center}
+.home .ic svg{width:17px;color:#fff}
+.home small{display:block;margin-top:12px;font-size:12px;color:var(--deep);font-weight:600}
+.home h4{margin:6px 0 0;font-family:var(--f-display);font-size:22px;font-weight:800;letter-spacing:-.03em}
+.home p{margin:8px 0 0;font-size:12.5px;line-height:1.55;color:var(--muted)}
+.sugg{display:flex;flex-direction:column;gap:8px;margin-top:18px}
+.sugg span{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-radius:999px;border:1px solid #E3EEE9;font-size:13px;color:var(--body);background:#fff;transition:background .3s,border-color .3s}
+.sugg span::after{content:"+";color:#2FBF8F;font-weight:700}
+.sugg span.press{background:#E6F8F0;border-color:#BFEAD8}
+.chat.talking .home{opacity:0;transform:translateY(-14px)}
+.msgs{position:absolute;top:100px;bottom:122px;left:12px;right:12px;display:flex;flex-direction:column;justify-content:flex-end;gap:11px;overflow:hidden}
+.msg{animation:up .45s cubic-bezier(.2,1.2,.4,1)}
+@keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.msg.u{align-self:flex-end;max-width:80%;padding:10px 13px;border-radius:18px 18px 6px 18px;background:#EFF5F1;font-size:13px;line-height:1.45}
+.msg.a{display:flex;gap:8px;max-width:92%}
+.msg.a .mk{flex:none;width:26px;height:26px;border-radius:8px;background:var(--mint);display:grid;place-items:center}
+.msg.a .mk svg{width:10px;color:#fff}
+.msg.a small{display:block;font-size:10.5px;color:var(--muted);font-weight:600}
+.msg.a small b{color:var(--ink);margin-right:4px}
+.msg.a span{display:block;margin-top:3px;font-size:13px;line-height:1.5;color:var(--ink)}
+.typing{display:flex;gap:4px;padding:10px 12px;margin-left:34px;border-radius:14px;background:#F2F7F5;align-self:flex-start}
+.typing i{width:6px;height:6px;border-radius:50%;background:#9CB5AB;animation:dot 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes dot{50%{transform:translateY(-3px);opacity:.4}}
+.msg.card{margin-left:34px;border-radius:18px;padding:13px;background:linear-gradient(160deg,#F4FDF8,#fff);border:1px solid #D4EAE3}
+.msg.card .top{display:flex;justify-content:space-between;font-size:11px;color:var(--deep);font-weight:600}
+.msg.card .top span{display:flex;gap:5px;align-items:center}
+.msg.card .top .min{color:var(--muted);font-weight:500}
+.msg.card h5{margin:8px 0 0;font-size:15.5px;font-weight:800;letter-spacing:-.02em}
+.msg.card p{margin:5px 0 0;font-size:11.5px;line-height:1.5;color:var(--body)}
+.msg.card .btns{margin-top:10px}
+.msg.card .primary{padding:9px 13px;font-size:12.5px;border-radius:11px}
+.msg.card .ghostbtn{font-size:12px}
+.composer{position:absolute;left:12px;right:12px;bottom:22px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.ready{font-size:11px;color:var(--deep);padding:5px 10px;border-radius:999px;border:1px solid #D4EAE3;background:#F4FDF8;display:flex;gap:5px;align-items:center}
+.input{width:100%;display:flex;align-items:center;justify-content:space-between;padding:7px 7px 7px 14px;border-radius:20px;border:1px solid #E1ECE7;background:#FBFDFC;font-size:12px;color:#A3B4AD}
+.input span{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.input i{flex:none;width:30px;height:30px;border-radius:50%;background:#E3ECE8;display:grid;place-items:center;color:#8CA59B;font-style:normal;font-weight:800}
+.chat.typingu .input{color:var(--ink)}
+.chat.typingu .input i{background:var(--deep);color:#fff}
+.disc{font-size:9.5px;color:var(--muted)}
+.sheet{position:absolute;left:0;right:0;bottom:0;top:120px;z-index:8;background:#fff;border-radius:28px 28px 0 0;box-shadow:0 -18px 40px -20px rgba(15,35,28,.35);padding:12px 18px 0;transform:translateY(105%);transition:transform .7s cubic-bezier(.2,1,.3,1)}
+.chat.sos .sheet{transform:none}
+.dim{position:absolute;inset:0;background:rgba(15,35,28,.28);opacity:0;transition:opacity .5s;z-index:7;pointer-events:none}
+.chat.sos .dim{opacity:1}
+.sheet .grab{width:38px;height:5px;border-radius:5px;background:#D7E2DD;margin:0 auto}
+.sheet h4{margin:16px 0 0;font-family:var(--f-display);font-size:20px;font-weight:800;letter-spacing:-.03em}
+.sheet > p{margin:6px 0 0;font-size:12.5px;line-height:1.55;color:var(--body)}
+.help{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.help div{display:flex;gap:10px;align-items:center;padding:11px 12px;border-radius:16px;background:#F4FAF7;border:1px solid #E1EFE8}
+.help svg{flex:none}
+.help b{display:block;font-size:12.5px}
+.help small{display:block;font-size:11px;color:var(--muted);margin-top:1px}
+.toggles{margin-top:14px;border-top:1px solid #EEF3F1}
+.toggles div{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #EEF3F1;font-size:12px;color:var(--body)}
+.sw{width:34px;height:20px;border-radius:20px;background:#DCE6E2;position:relative}
+.sw::after{content:"";position:absolute;left:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.sheet .disc{display:block;text-align:center;margin-top:12px}
+
+/* ---------- outro ---------- */
+.outro{padding-inline:clamp(16px,4vw,44px);padding-block:clamp(90px,14vh,150px) 60px;text-align:center;background:linear-gradient(180deg,var(--paper),#EFFAF5)}
+.outro .logo{width:min(220px,50vw);color:var(--mint);display:block;margin:0 auto}
+.outro h2{font-family:var(--f-display);font-weight:800;font-size:clamp(44px,8vw,104px);letter-spacing:-.05em;line-height:1.02;margin:30px 0 0;text-wrap:balance}
+.outro .sub{font-size:clamp(17px,2vw,21px);color:var(--body);margin:18px 0 0}
+.three{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(16px,3vw,40px);max-width:1080px;margin:64px auto 0;text-align:left}
+.three div{border-top:2px solid var(--ink);padding-top:16px;min-width:0}
+.three b{display:block;font-family:var(--f-display);font-size:20px;font-weight:800;letter-spacing:-.02em}
+.three span{display:block;margin-top:8px;font-size:15px;line-height:1.6;color:var(--body)}
+.again{margin-top:56px;border:0;cursor:pointer;padding:14px 26px;border-radius:999px;background:var(--ink);color:#fff;font-size:15px;font-weight:600}
+.foot{margin-top:56px;font-size:12.5px;color:var(--muted)}
+
+/* ---------- narrow ---------- */
+@media (max-width:1040px) and (min-width:861px){ .three{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (max-width:860px){
+  .stage{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);justify-items:center;padding-top:14px;padding-bottom:62px;row-gap:8px}
+  .caps{width:100%;height:150px}
+  .cap{justify-content:flex-start;text-align:center;align-items:center}
+  .cap h2{font-size:clamp(24px,6.6vw,32px);margin-top:8px}
+  .cap p{font-size:14.5px;margin-top:8px;max-width:36ch}
+  .cap .proof{display:none}
+  .cap .step{font-size:11.5px}
+  .rail button{padding:6px 9px;font-size:11.5px}
+  .phone-col{align-self:start}
+  .three{grid-template-columns:minmax(0,1fr)}
+  .story2 .caps{height:160px}
+}
+@media (max-width:420px){ .rail button{padding:6px 7px;font-size:11px} .nav .right span{display:none} }
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="ippo-logo">
+      <path d="M267.632 127C283.925 127 297.132 140.208 297.132 156.5C297.132 172.792 283.925 186 267.632 186C251.34 186 238.132 172.792 238.132 156.5C238.132 140.208 251.34 127 267.632 127Z" fill="currentColor" stroke="currentColor" stroke-width="6"/>
+      <path d="M253.618 204.56C289.491 209.303 313.989 238.571 312.747 274.818C311.74 317.211 287.55 351.609 249.567 375.781C239.126 382.579 226.218 380.597 216.986 374.392C182.517 352.85 160.217 318.882 165.793 276.702C171.928 230.299 208.609 198.61 253.618 204.56ZM247.478 251.004C237.757 249.719 229.49 252.803 223.189 258.873C216.799 265.028 212.252 274.457 210.736 285.923C208.304 304.318 215.95 320.138 229.485 330.977C230.875 331.891 232.071 332.287 233.127 332.36C234.174 332.432 235.444 332.213 237.043 331.328C254.762 320.401 267.403 300.744 268.168 279.783L268.171 279.702L268.176 279.621C268.719 271.759 267.15 265.088 263.825 260.241C260.578 255.509 255.343 252.044 247.478 251.004Z" fill="currentColor" stroke="currentColor" stroke-width="10"/>
+      <path d="M231.132 356C212.051 374.887 189.769 388.343 163.608 400.129C152.13 405.826 147.399 414.68 152.116 423.296" fill="none" stroke="currentColor" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M228.132 357C252.169 370.98 271.131 388.935 289.145 410.777C297.606 420.26 307.983 422.936 316.11 416.962" fill="none" stroke="currentColor" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"/>
+      <path fill-rule="evenodd" d="M408.826 200H490.826C552.826 200 586.826 237 586.826 296C586.826 355 551.826 392 490.826 392H449.326V418C449.326 432 441.826 440 427.826 440H408.826C394.826 440 386.826 432 386.826 418V222C386.826 208 394.826 200 408.826 200ZM449.326 258V334H487.826C510.826 334 523.826 320 523.826 296C523.826 272 510.826 258 487.826 258H449.326Z" fill="currentColor"/>
+      <path fill-rule="evenodd" d="M640.826 200H722.826C784.826 200 818.826 237 818.826 296C818.826 355 783.826 392 722.826 392H681.326V418C681.326 432 673.826 440 659.826 440H640.826C626.826 440 618.826 432 618.826 418V222C618.826 208 626.826 200 640.826 200ZM681.326 258V334H719.826C742.826 334 755.826 320 755.826 296C755.826 272 742.826 258 719.826 258H681.326Z" fill="currentColor"/>
+      <path fill-rule="evenodd" d="M960.826 200C1029.83 200 1070.83 246.667 1070.83 320C1070.83 393.333 1029.83 440 960.826 440C891.826 440 850.826 393.333 850.826 320C850.826 246.667 891.826 200 960.826 200ZM960.826 256.19C935.826 256.19 922.826 278.095 922.826 320C922.826 361.905 935.826 383.81 960.826 383.81C985.826 383.81 998.826 361.905 998.826 320C998.826 278.095 985.826 256.19 960.826 256.19Z" fill="currentColor"/>
+    </g>
+    <symbol id="sprout" viewBox="0 0 24 24"><path d="M12 21v-8M12 13c0-4 3-6 7-6 0 4-3 6-7 6zM12 15c0-3-2.5-5-6-5 0 3 2.5 5 6 5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9AD8F5"/><stop offset="1" stop-color="#E8F8FF"/></linearGradient>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EEE9E3"/><stop offset="1" stop-color="#DED5CB"/></linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#CDBFAF"/><stop offset="1" stop-color="#B9A996"/></linearGradient>
+    <!-- the photo that gets posted: window already open -->
+    <symbol id="room-open" viewBox="0 0 300 420">
+      <rect width="300" height="420" fill="url(#wall)"/>
+      <rect y="360" width="300" height="60" fill="url(#floor)"/>
+      <polygon points="58,292 242,292 300,420 0,420" fill="#FFF4CF" opacity=".5"/>
+      <rect x="44" y="50" width="212" height="252" rx="7" fill="#fff"/>
+      <rect x="56" y="62" width="188" height="228" fill="url(#sky)"/>
+      <circle cx="196" cy="108" r="22" fill="#FFE7A0"/>
+      <g fill="#fff" opacity=".92"><ellipse cx="104" cy="118" rx="28" ry="10"/><ellipse cx="124" cy="110" rx="18" ry="11"/><ellipse cx="208" cy="160" rx="22" ry="8"/></g>
+      <g fill="#8FD3AE"><circle cx="78" cy="292" r="30"/><circle cx="118" cy="300" r="26"/><circle cx="214" cy="296" r="32"/><circle cx="250" cy="304" r="20"/></g>
+      <rect x="74" y="62" width="92" height="228" fill="none" stroke="#fff" stroke-width="6"/>
+      <g stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none" opacity=".95"><path d="M150 140 q30 -10 60 0 t60 0"/><path d="M140 190 q30 -10 60 0 t60 0"/></g>
+      <rect x="30" y="38" width="240" height="6" rx="3" fill="#9AA79F"/>
+      <path d="M30 44 h40 q-6 120 4 258 h-44z" fill="#BDEFD9"/>
+      <path d="M270 44 h-40 q6 120 -4 258 h44z" fill="#BDEFD9"/>
+      <rect x="36" y="300" width="228" height="12" rx="4" fill="#fff"/>
+      <rect x="196" y="270" width="30" height="30" rx="5" fill="#E9A47F"/>
+      <path d="M211 272 c-2 -16 -14 -22 -22 -24 c4 10 10 18 22 24 M211 272 c2 -18 12 -26 22 -28 c-2 12 -10 22 -22 28" fill="#4FB37E"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="nav">
+  <svg class="logo" viewBox="140 118 940 332" role="img" aria-label="IPPO"><use href="#ippo-logo"/></svg>
+  <div class="right"><span>1조 이치방(いちばん)</span><b>Live Demo</b></div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="eyebrow">Live Demo</div>
+    <h1>직접 <em>한 걸음,</em> 걸어보겠습니다.</h1>
+    <p>말하지 않아도 괜찮아요. 스크롤을 내리면 IPPO와 함께하는 하루가 시작돼요.</p>
+    <a class="cue" href="#story">스크롤해서 시작하기
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+    </a>
+  </section>
+
+  <section class="story" id="story">
+    <div class="stage" id="stage">
+      <div class="caps" id="caps">
+        <article class="cap on" data-i="0">
+          <div class="step">01 · 알림</div>
+          <h2>IPPO가 먼저 다가옵니다.</h2>
+          <p>은둔 중인 청년은 AI에게도 먼저 말을 걸지 않아요. 그래서 IPPO가 BeReal처럼 정해진 순간에 먼저 알림을 보내요.</p>
+          <div class="proof"><b>현지 피드백</b>쓰쿠바대 학생이 꼽은 차별점</div>
+        </article>
+        <article class="cap" data-i="1">
+          <div class="step">02 · 미션</div>
+          <h2>30분 안에, 1분짜리 한 걸음.</h2>
+          <p>오늘의 컨디션에 맞춘 아주 작은 행동 하나만 제안해요. '나중에 할게요'를 눌러도 실패로 남지 않아요.</p>
+          <div class="proof"><b>45%</b>한·일 응답자가 가장 원한 기능, 하루 1개 미션</div>
+        </article>
+        <article class="cap" data-i="2">
+          <div class="step">03 · 환기</div>
+          <h2>창문을 열고, 바람 한 번.</h2>
+          <p>회복은 거창한 결심보다 커튼을 여는 데서 시작돼요. 대화 대신 몸을 조금 움직이는 것이 오늘의 목표예요.</p>
+          <div class="proof"><b>85%</b>"해야 하는데 시작이 안 된다"고 답한 비율</div>
+        </article>
+        <article class="cap" data-i="3">
+          <div class="step">04 · 인증</div>
+          <h2>사진 한 장이면 끝.</h2>
+          <p>긴 글도, 감정 설명도 필요 없어요. 찍는 순간 오늘의 한 걸음이 기록돼요.</p>
+          <div class="proof"><b>56.7%</b>일본 응답자가 원한 '완료 버튼만' 기록</div>
+        </article>
+        <article class="cap" data-i="4">
+          <div class="step">05 · 응원</div>
+          <h2>비방은 없고, 응원만 있어요.</h2>
+          <p>자유 댓글과 좋아요 수, 순위를 없앴어요. "오늘도 고생했어요", "멋져요" 같은 정해진 응원만 오가요.</p>
+          <div class="proof"><b>50%</b>한·일 모두 '인기 순위는 없어도 된다'</div>
+        </article>
+        <article class="cap" data-i="5">
+          <div class="step">06 · 릴레이</div>
+          <h2>한 걸음이 다음 걸음으로.</h2>
+          <p>'나도 해볼게요'를 누르면 같은 미션이 그 사람의 IPPO에 도착해요. 보는 것이 행동으로 이어져요.</p>
+          <div class="proof"><b>80%</b>한국 응답자 "남의 작은 행동을 보면 나도 해볼 것 같다"</div>
+        </article>
+      </div>
+
+      <div class="phone-col">
+        <div class="phone-slot" id="slot">
+          <div class="phone" aria-label="IPPO 앱 화면 시연">
+            <div class="bezel">
+              <div class="screen" id="screen" data-tone="light">
+                <div class="island"></div>
+                <div class="status">
+                  <span>14:32</span>
+                  <span class="icons">
+                    <svg width="17" height="11" viewBox="0 0 17 11"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+                    <svg width="15" height="11" viewBox="0 0 15 11"><path d="M7.5 2.2c2.2 0 4.2.8 5.7 2.2l1.1-1.1A9.6 9.6 0 0 0 7.5.6 9.6 9.6 0 0 0 .7 3.3l1.1 1.1c1.5-1.4 3.5-2.2 5.7-2.2zm0 3.2c1.3 0 2.5.5 3.4 1.3l1.1-1.1A6.5 6.5 0 0 0 7.5 3.8 6.5 6.5 0 0 0 3 5.6l1.1 1.1c.9-.8 2.1-1.3 3.4-1.3zm0 3.2c.5 0 .9.2 1.2.5L7.5 10.3 6.3 9.1c.3-.3.7-.5 1.2-.5z"/></svg>
+                    <svg width="25" height="12" viewBox="0 0 25 12"><rect x=".5" y=".5" width="21" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="15" height="8" rx="2"/><rect x="22.5" y="4" width="1.8" height="4" rx=".9" opacity=".45"/></svg>
+                  </span>
+                </div>
+
+                <!-- 1. lock + notification -->
+                <div class="scr lock on" id="s0">
+                  <svg class="ghost" viewBox="140 118 186 332" aria-hidden="true"><use href="#ippo-logo"/></svg>
+                  <div class="date">10월 9일 금요일</div>
+                  <div class="time">14:32</div>
+                  <div class="banner" id="banner">
+                    <div class="appicon"><svg viewBox="140 118 186 332"><use href="#ippo-logo"/></svg></div>
+                    <div class="txt">
+                      <div class="row"><b>IPPO</b><span>지금</span></div>
+                      <h4>30분 안에 오늘의 한 걸음을 보여주세요!</h4>
+                      <p>오늘은 가볍게 창문을 열고 환기하는 모습을 남겨 주는 건 어떨까요?</p>
+                    </div>
+                  </div>
+                  <div class="hint">밀어서 열기</div>
+                  <div class="dock">
+                    <span><svg viewBox="0 0 24 24"><path d="M9 2h6l-1 6h-4zM10 8h4v12a2 2 0 0 1-4 0z"/></svg></span>
+                    <span><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
+                  </div>
+                </div>
+
+                <!-- 2. mission card -->
+                <div class="scr app" id="s1">
+                  <div class="apphead">
+                    <svg class="logo" viewBox="140 118 940 332" role="img" aria-label="IPPO"><use href="#ippo-logo"/></svg>
+                    <span class="pill"><i></i><span class="clock">29:59</span> 남음</span>
+                  </div>
+                  <div class="hello">오늘의 한 걸음이 도착했어요</div>
+                  <h3>가볍게,<br>바람 한 번 쐬어요.</h3>
+                  <div class="energy">오늘 에너지 <span class="bars"><span class="f"></span><span class="f"></span><span></span><span></span><span></span></span> 조금 지침</div>
+                  <div class="mcard">
+                    <div class="top">
+                      <span><svg width="15" height="15"><use href="#sprout"/></svg>오늘의 작은 한 걸음</span>
+                      <span class="min">1분</span>
+                    </div>
+                    <h5>창문 열고, 바깥 공기 한 번.</h5>
+                    <p>창문을 열고 바람이 들어오는 모습을 한 장 찍어 주세요. 커튼만 걷어도 괜찮아요.</p>
+                    <div class="btns">
+                      <button class="primary" tabindex="-1">인증하러 가기<span class="rip"></span></button>
+                      <button class="ghostbtn" tabindex="-1">나중에 할게요</button>
+                    </div>
+                  </div>
+                  <div class="note"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>나중에 해도 실패로 기록되지 않아요</div>
+                </div>
+
+                <!-- 3. camera -->
+                <div class="scr cam" id="s2">
+                  <div class="view">
+                    <svg class="room" viewBox="0 0 300 420" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                      <rect width="300" height="420" fill="url(#wall)"/>
+                      <rect y="360" width="300" height="60" fill="url(#floor)"/>
+                      <polygon class="beam" points="58,292 242,292 300,420 0,420" fill="#FFF4CF"/>
+                      <rect x="44" y="50" width="212" height="252" rx="7" fill="#fff"/>
+                      <rect x="56" y="62" width="188" height="228" fill="url(#sky)"/>
+                      <circle cx="196" cy="108" r="22" fill="#FFE7A0"/>
+                      <g class="clouds" fill="#fff" opacity=".92"><ellipse cx="104" cy="118" rx="28" ry="10"/><ellipse cx="124" cy="110" rx="18" ry="11"/><ellipse cx="208" cy="160" rx="22" ry="8"/></g>
+                      <g fill="#8FD3AE"><circle cx="78" cy="292" r="30"/><circle cx="118" cy="300" r="26"/><circle cx="214" cy="296" r="32"/><circle cx="250" cy="304" r="20"/></g>
+                      <rect x="56" y="62" width="94" height="228" fill="#DFF1F8" opacity=".28"/>
+                      <g class="sash"><rect x="150" y="62" width="94" height="228" fill="#E6F4FA" opacity=".42"/><rect x="150" y="62" width="94" height="228" fill="none" stroke="#fff" stroke-width="6"/></g>
+                      <rect x="56" y="62" width="94" height="228" fill="none" stroke="#fff" stroke-width="6"/>
+                      <g stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none">
+                        <path class="breeze" d="M120 140 q30 -10 60 0 t60 0 t60 0"/>
+                        <path class="breeze" d="M100 190 q30 -10 60 0 t60 0 t60 0"/>
+                        <path class="breeze" d="M130 240 q30 -10 60 0 t60 0 t60 0"/>
+                      </g>
+                      <rect x="30" y="38" width="240" height="6" rx="3" fill="#9AA79F"/>
+                      <path class="curtain-l" d="M30 44 h122 q-6 120 2 258 h-124z" fill="#BDEFD9"/>
+                      <path class="curtain-r" d="M270 44 h-122 q6 120 -2 258 h124z" fill="#BDEFD9"/>
+                      <rect x="36" y="300" width="228" height="12" rx="4" fill="#fff"/>
+                      <rect x="196" y="270" width="30" height="30" rx="5" fill="#E9A47F"/>
+                      <path d="M211 272 c-2 -16 -14 -22 -22 -24 c4 10 10 18 22 24 M211 272 c2 -18 12 -26 22 -28 c-2 12 -10 22 -22 28" fill="#4FB37E"/>
+                    </svg>
+                  </div>
+                  <div class="front" aria-hidden="true"><svg viewBox="0 0 72 96"><circle cx="36" cy="40" r="15" fill="#F2D7C6"/><path d="M21 38c0-12 8-18 15-18s15 6 15 18c-3-6-8-9-15-9s-12 3-15 9z" fill="#3D3A36"/><path d="M8 96c2-22 14-32 28-32s26 10 28 32z" fill="#66E8BF"/></svg></div>
+                  <div class="timer">⏱ <span class="clock">29:59</span></div>
+                  <div class="bracket"><i></i><i></i><i></i><i></i></div>
+                  <div class="controls"><div class="mode">사진</div><div class="shutter"><span></span></div></div>
+                  <div class="flash"></div>
+                </div>
+
+                <!-- 4. done -->
+                <div class="scr done" id="s3">
+                  <div class="polar">
+                    <svg viewBox="0 0 300 300" preserveAspectRatio="xMidYMid slice"><use href="#room-open" x="0" y="-30" width="300" height="420"/></svg>
+                    <small>14:35 · 환기하기</small>
+                  </div>
+                  <div class="check"><svg width="26" height="26" viewBox="0 0 26 26"><path d="M6 13.5l4.5 4.5L20 8.5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                  <h3>오늘의 한 걸음 완료!</h3>
+                  <p>3분 만에 인증했어요</p>
+                  <div class="tags"><span>글 작성 없음</span><span>연속 기록 없음</span><span>친구에게만 공개</span></div>
+                </div>
+
+                <!-- 5. feed -->
+                <div class="scr feed" id="s4">
+                  <div class="feedhead"><h3>오늘의 한 걸음</h3><div class="seg"><span class="on">친구</span><span>전체</span></div></div>
+                  <div class="post">
+                    <div class="who"><div class="av" style="background:#2FBF8F">유</div><div><b>느린고양이</b><small>방금 · 환기하기 미션</small></div></div>
+                    <div class="ph"><svg viewBox="0 0 300 220" preserveAspectRatio="xMidYMid slice"><use href="#room-open" x="0" y="-60" width="300" height="420"/></svg></div>
+                    <div class="reacts" id="reacts"><span>🌱 응원해요</span><span>👏 수고했어요</span><span>✨ 멋져요</span><span>🙌 나도 해볼게요</span></div>
+                  </div>
+                  <div class="toasts" id="toasts">
+                    <div class="toast"><div class="av" style="background:#7FB8E8">하</div><span><b>하루</b> 님이 <em>오늘도 고생했어요</em></span></div>
+                    <div class="toast"><div class="av" style="background:#E9A47F">민</div><span><b>민트초코</b> 님이 <em>멋져요</em></span></div>
+                    <div class="toast"><div class="av" style="background:#B79BE0">새</div><span><b>새벽산책</b> 님이 <em>나도 해볼게요</em></span></div>
+                  </div>
+                  <div class="nofight"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>댓글창 · 좋아요 수 · 순위 없음</div>
+                </div>
+
+                <!-- 6. relay -->
+                <div class="scr relay" id="s5">
+                  <div class="mini"><div class="appicon"><svg viewBox="140 118 186 332"><use href="#ippo-logo"/></svg></div><span><b>새벽산책</b> 님의 IPPO에 같은 미션이 도착했어요</span></div>
+                  <h3>내 한 걸음이<br><span>3명</span>에게 이어졌어요</h3>
+                  <svg class="path" viewBox="0 0 264 150" aria-hidden="true">
+                    <path class="trail" d="M30 118 C70 118 70 40 112 40 S160 116 198 104 S240 40 240 34" fill="none" stroke="#9FDCC6" stroke-width="2.5" stroke-linecap="round"/>
+                    <g class="node" data-k="0"><circle cx="30" cy="118" r="17" fill="#2FBF8F"/><text x="30" y="122.5" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">나</text></g>
+                    <g class="node" data-k="1"><circle cx="112" cy="40" r="15" fill="#7FB8E8"/><text x="112" y="44.5" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">하</text></g>
+                    <g class="node" data-k="2"><circle cx="198" cy="104" r="15" fill="#E9A47F"/><text x="198" y="108.5" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">민</text></g>
+                    <g class="node" data-k="3"><circle cx="240" cy="34" r="15" fill="#B79BE0"/><text x="240" y="38.5" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">새</text></g>
+                  </svg>
+                  <div class="robot">
+                    <svg width="34" height="34" viewBox="0 0 34 34"><rect x="5" y="9" width="24" height="18" rx="7" fill="#66E8BF"/><circle cx="13" cy="18" r="2.4" fill="#0F231C"/><circle cx="21" cy="18" r="2.4" fill="#0F231C"/><path d="M17 9V5" stroke="#1C7054" stroke-width="2" stroke-linecap="round"/><circle cx="17" cy="4" r="2" fill="#1C7054"/></svg>
+                    <span>각자의 탁상형 IPPO 로봇이 불빛으로 미션을 알려 줘요. 말하지 않아도 돼요.</span>
+                  </div>
+                  <button class="primary" tabindex="-1">내일의 한 걸음 기다리기</button>
+                </div>
+
+                <div class="homebar"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="rail" id="rail" aria-label="시연 단계">
+        <button data-k="0" class="on">알림</button><button data-k="1">미션</button><button data-k="2">환기</button><button data-k="3">인증</button><button data-k="4">응원</button><button data-k="5">릴레이</button>
+      </nav>
+    </div>
+  </section>
+
+
+  <section class="flip" id="flip" aria-label="전환">
+    <div class="hold">
+      <div class="orb"></div>
+      <div class="lines">
+        <div class="ln a"><h2>그런데, 이게 끝이 아니에요.</h2><p>계속 스크롤해 보세요</p></div>
+        <div class="ln b"><h2>말하고 싶은 날엔,<br><em>대화도</em> 할 수 있어요.</h2><p>AI 기반 대화 · 마음 상담</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="story2" id="story2">
+    <div class="stage" id="stage2">
+      <div class="caps">
+        <article class="cap on" data-i="0">
+          <div class="step">07 · 대화</div>
+          <h2>대화는 선택, 언제든 열려 있어요.</h2>
+          <p>말하고 싶은 날엔 IPPO와 이야기할 수 있어요. 추천 문장 하나만 눌러도 대화가 시작돼요.</p>
+          <div class="proof"><b>26.7%</b>기분이 낮을 때 AI 챗봇을 찾는 일본 응답자</div>
+        </article>
+        <article class="cap" data-i="1">
+          <div class="step">08 · 공감</div>
+          <h2>판단하지 않고, 먼저 들어줘요.</h2>
+          <p>감정을 캐묻거나 평가하지 않아요. 지금 상태를 그대로 받아 주고, 숨 고르는 것부터 함께해요.</p>
+        </article>
+        <article class="cap" data-i="2">
+          <div class="step">09 · 제안</div>
+          <h2>이야기는 결국 한 걸음으로.</h2>
+          <p>대화가 이어지면 IPPO가 지금 할 수 있는 작은 미션을 건네요. 말에서 행동으로 넘어가는 순간이에요.</p>
+        </article>
+        <article class="cap" data-i="3">
+          <div class="step">10 · 연결</div>
+          <h2>더 이상 혼자가 아니에요.</h2>
+          <p>도움이 더 필요할 땐 사람과 전문기관으로 이어 드려요. 대화는 기본으로 저장되지 않고, IPPO는 의료 서비스가 아니에요.</p>
+          <div class="proof"><b>109</b>한국 자살예방 상담전화로 바로 연결</div>
+        </article>
+      </div>
+
+      <div class="phone-col">
+        <div class="phone-slot" id="slot2">
+          <div class="phone" aria-label="IPPO AI 대화 화면 시연">
+            <div class="bezel">
+              <div class="screen" data-tone="dark">
+                <div class="island"></div>
+                <div class="status">
+                  <span>14:32</span>
+                  <span class="icons">
+                    <svg width="17" height="11" viewBox="0 0 17 11"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+                    <svg width="15" height="11" viewBox="0 0 15 11"><path d="M7.5 2.2c2.2 0 4.2.8 5.7 2.2l1.1-1.1A9.6 9.6 0 0 0 7.5.6 9.6 9.6 0 0 0 .7 3.3l1.1 1.1c1.5-1.4 3.5-2.2 5.7-2.2zm0 3.2c1.3 0 2.5.5 3.4 1.3l1.1-1.1A6.5 6.5 0 0 0 7.5 3.8 6.5 6.5 0 0 0 3 5.6l1.1 1.1c.9-.8 2.1-1.3 3.4-1.3zm0 3.2c.5 0 .9.2 1.2.5L7.5 10.3 6.3 9.1c.3-.3.7-.5 1.2-.5z"/></svg>
+                    <svg width="25" height="12" viewBox="0 0 25 12"><rect x=".5" y=".5" width="21" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="15" height="8" rx="2"/><rect x="22.5" y="4" width="1.8" height="4" rx=".9" opacity=".45"/></svg>
+                  </span>
+                </div>
+
+                
+                <div class="scr chat on" id="chat">
+                  <div class="chead"><span class="badge"><svg viewBox="140 118 940 332"><use href="#ippo-logo"/></svg></span><b>한 걸음</b><i>···</i></div>
+                  <div class="home">
+                    <div class="ic"><svg viewBox="140 118 186 332"><use href="#ippo-logo"/></svg></div>
+                    <small>천천히, 이야기해요</small>
+                    <h4>오늘은 어떤 하루였나요?</h4>
+                    <p>정리되지 않은 마음도 괜찮아요.<br>이야기 속에서 작은 한 걸음을 찾아봐요.</p>
+                    <div class="sugg"><span id="sg1">조금 지친 것 같아요</span><span>무엇부터 시작하면 좋을까요</span></div>
+                  </div>
+                  <div class="msgs" id="msgs">
+                    <div class="msg u" hidden>조금 지친 것 같아요</div>
+                    <div class="msg a" hidden><div class="mk"><svg viewBox="140 118 186 332"><use href="#ippo-logo"/></svg></div><div><small><b>IPPO</b>AI 답변</small><span>그렇구나, 힘들었구나. 조금 쉬어도 괜찮아.</span></div></div>
+                    <div class="msg u" hidden>뭐 하고 싶을까?</div>
+                    <div class="msg a" hidden><div class="mk"><svg viewBox="140 118 186 332"><use href="#ippo-logo"/></svg></div><div><small><b>IPPO</b>AI 답변</small><span>가만히 앉아 숨을 깊게 들이마시는 건 어때?</span></div></div>
+                    <div class="msg u" hidden>들어봤어. 새 소리도 들리고 여유가 있는 것 같아</div>
+                    <div class="msg a" hidden><div class="mk"><svg viewBox="140 118 186 332"><use href="#ippo-logo"/></svg></div><div><small><b>IPPO</b>AI 답변</small><span>그렇구나, 조용히 앉아 있는 것만으로도 충분해. 조금 더 여유를 가지며 산책하는 건 어때?</span></div></div>
+                    <div class="msg card" hidden>
+                      <div class="top"><span><svg width="13" height="13"><use href="#sprout"/></svg>이야기 속 작은 한 걸음</span><span class="min">5분</span></div>
+                      <h5>바깥 공기를, 조금만.</h5>
+                      <p>무리 없는 안전한 곳으로 짧게 걸어 봐요. 밖에 나가기 어렵다면 실내를 걸어도 좋아요.</p>
+                      <div class="btns"><button class="primary" tabindex="-1">시작하기</button><button class="ghostbtn" tabindex="-1">나중에 할게요</button></div>
+                    </div>
+                    <div class="typing" hidden><i></i><i></i><i></i></div>
+                  </div>
+                  <div class="composer">
+                    <div class="ready"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg>이야기할 준비가 됐어요</div>
+                    <div class="input"><span id="draft">지금 떠오르는 이야기를 적어주세요…</span><i>↑</i></div>
+                    <div class="disc">잇포는 의료 서비스가 아니며, 진단이나 치료를 제공하지 않아요.</div>
+                  </div>
+                  <div class="dim"></div>
+                  <div class="sheet">
+                    <div class="grab"></div>
+                    <h4>혼자 감당하지 않아도 돼요</h4>
+                    <p>마음이 많이 힘들 땐 사람과 이야기하는 게 좋아요. 지금 바로 연결할 수 있어요.</p>
+                    <div class="help">
+                      <div><svg width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="15" fill="#DDF8EE"/><path d="M11 9h3l1 4-2 1a8 8 0 0 0 3 3l1-2 4 1v3a2 2 0 0 1-2 2A12 12 0 0 1 9 11a2 2 0 0 1 2-2z" fill="#1C7054"/></svg><span><b>자살예방 상담전화 109</b><small>24시간 · 한국</small></span></div>
+                      <div><svg width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="15" fill="#DDF8EE"/><path d="M9 21v-8l6-4 6 4v8h-4v-5h-4v5z" fill="#1C7054"/></svg><span><b>가까운 청년 지원기관 찾기</b><small>고립·은둔 청년 전담기관 · 지자체 창구</small></span></div>
+                      <div><svg width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="15" fill="#DDF8EE"/><path d="M8 20c1-4 4-6 7-6s6 2 7 6zM15 13a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" fill="#1C7054"/></svg><span><b>믿을 수 있는 사람에게 알리기</b><small>내가 고른 한 사람에게만</small></span></div>
+                    </div>
+                    <div class="toggles">
+                      <div>이 기기에 대화 저장하기<span class="sw"></span></div>
+                      <div>외부 처리 동의 철회하기<span style="color:var(--deep);font-weight:600">철회</span></div>
+                    </div>
+                    <span class="disc">잇포는 의료 서비스가 아니며, 진단이나 치료를 제공하지 않아요.</span>
+                  </div>
+                </div>
+                <div class="homebar"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="rail" id="rail2" aria-label="대화 시연 단계">
+        <button data-k="0" class="on">대화</button><button data-k="1">공감</button><button data-k="2">제안</button><button data-k="3">연결</button>
+      </nav>
+    </div>
+  </section>
+
+  <section class="outro">
+    <svg class="logo" viewBox="140 118 940 332" role="img" aria-label="IPPO"><use href="#ippo-logo"/></svg>
+    <h2>말 대신, 한 걸음.</h2>
+    <p class="sub">보이지 않던 사회복귀의 첫 걸음</p>
+    <div class="three">
+      <div><b>먼저 다가오는 알림</b><span>사용자가 말을 걸 때까지 기다리지 않아요. IPPO가 먼저 오늘의 순간을 알려요.</span></div>
+      <div><b>30분 안의 1분 미션</b><span>창문 열기, 물 한 잔처럼 작은 행동 하나. 사진 한 장으로 인증이 끝나요.</span></div>
+      <div><b>비방 없는 응원</b><span>댓글창과 순위 대신 정해진 응원만 오가요. 한 걸음은 릴레이로 이어져요.</span></div>
+      <div><b>원할 땐 AI와 대화</b><span>판단 없이 들어 주고, 이야기를 한 걸음으로 이어요. 필요하면 사람과 기관으로 연결해요.</span></div>
+    </div>
+    <button class="again" id="again">처음부터 다시 보기</button>
+    <div class="foot">IPPO · 1조 이치방(いちばん) · 2026 바이오헬스 글로벌 매칭 프로그램</div>
+  </section>
+</main>
+
+<script>
+(function(){
+  const B=[0,.15,.31,.49,.62,.80,1];
+  const story=document.getElementById('story');
+  const stage=document.getElementById('stage');
+  const screen=document.getElementById('screen');
+  const slot=document.getElementById('slot');
+  const scr=[0,1,2,3,4,5].map(i=>document.getElementById('s'+i));
+  const caps=[...document.querySelectorAll('#caps .cap')];
+  const rail=[...document.querySelectorAll('#rail button')];
+  const banner=document.getElementById('banner');
+  const app=scr[1], cam=scr[2];
+  const reacts=[...document.querySelectorAll('#reacts span')];
+  const toasts=[...document.querySelectorAll('#toasts .toast')];
+  const nodes=[...document.querySelectorAll('.node')];
+  const clocks=[...document.querySelectorAll('.clock')];
+  const tones=['light','dark','dark','dark','dark','dark'];
+  const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+  let cur=-1, ticking=false, lastClock='';
+
+  function fit(){
+    const narrow=innerWidth<=860;
+    const h=stage.clientHeight - (narrow?150+62+30:64+40);
+    const w=narrow? stage.clientWidth-32 : Math.min(360, stage.clientWidth*.42);
+    const s=clamp(Math.min(h/620, w/300), .5, 1.06);
+    slot.style.setProperty('--s', s.toFixed(3));
+  }
+  function total(){return Math.max(1, story.offsetHeight - innerHeight)}
+  function update(){
+    ticking=false;
+    const p=clamp((scrollY - story.offsetTop)/total());
+    let i=0; while(i<5 && p>=B[i+1]) i++;
+    const t=clamp((p-B[i])/(B[i+1]-B[i]));
+    if(i!==cur){
+      cur=i;
+      scr.forEach((el,k)=>el.classList.toggle('on',k===i));
+      caps.forEach((el,k)=>{el.classList.toggle('on',k===i); el.setAttribute('aria-hidden',k===i?'false':'true')});
+      rail.forEach((el,k)=>{el.classList.toggle('on',k===i); el.classList.toggle('done',k<i)});
+      screen.dataset.tone=tones[i]; screen.dataset.scene=i;
+    }
+    // 1. notification drops in
+    const bin = i>0 || t>.2;
+    if(bin!==banner.classList.contains('in')){ banner.classList.toggle('in',bin); banner.classList.toggle('buzz',bin); }
+    // countdown: 30 minutes from the alert, about 3 minutes pass by the photo
+    const used=Math.round(clamp((p-.03)/.46)*186);
+    const rem=1799-used, txt=String(Math.floor(rem/60)).padStart(2,'0')+':'+String(rem%60).padStart(2,'0');
+    if(txt!==lastClock){ clocks.forEach(c=>c.textContent=txt); lastClock=txt; }
+    // 2. tap on the button
+    app.classList.toggle('tap', i===1 && t>.72);
+    // 3. curtains open, then shutter
+    cam.style.setProperty('--open', (i<2?0: i>2?1: clamp(t/.72)).toFixed(3));
+    cam.classList.toggle('shot', i===2 && t>.86);
+    // 5. cheers arrive one by one
+    const n = i<4?0 : i>4?9 : Math.floor(t*7.5);
+    reacts.forEach((el,k)=>el.classList.toggle('lit', k<n));
+    toasts.forEach((el,k)=>el.classList.toggle('show', k < n-1));
+    // 6. relay nodes
+    const m = i<5?0 : Math.floor(t*5)+1;
+    nodes.forEach((el,k)=>el.classList.toggle('show', k<m));
+  }
+  function req(){ if(!ticking){ticking=true; requestAnimationFrame(update)} }
+  addEventListener('scroll',req,{passive:true});
+  addEventListener('resize',()=>{fit(); req()});
+  rail.forEach(b=>b.addEventListener('click',()=>{
+    const k=+b.dataset.k;
+    scrollTo({top: story.offsetTop + (B[k]+ (k===0?.21:.06)*(B[k+1]-B[k]) + 0.001)*total(), behavior:'smooth'});
+  }));
+  document.getElementById('again').addEventListener('click',()=>scrollTo({top:0,behavior:'smooth'}));
+  fit(); update();
+})();
+</script>
+
+<script>
+(function(){
+  const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+  const flip=document.getElementById('flip'); const hold=flip.querySelector('.hold');
+  const la=flip.querySelector('.ln.a'), lb=flip.querySelector('.ln.b');
+  const story=document.getElementById('story2'), stage=document.getElementById('stage2'), slot=document.getElementById('slot2');
+  const phone=slot.querySelector('.phone');
+  const chat=document.getElementById('chat');
+  const caps=[...stage.querySelectorAll('.cap')], rail=[...stage.querySelectorAll('.rail button')];
+  const items=[...document.querySelectorAll('#msgs .msg')], typing=document.querySelector('#msgs .typing');
+  const sg1=document.getElementById('sg1'), draft=document.getElementById('draft');
+  const B=[0,.2,.55,.78,1];
+  let cur=-1, ticking=false;
+  function fit(){
+    const narrow=innerWidth<=860;
+    const h=stage.clientHeight-(narrow?160+62+30:64+40);
+    const w=narrow?stage.clientWidth-32:Math.min(360,stage.clientWidth*.42);
+    slot.style.setProperty('--s',clamp(Math.min(h/620,w/300),.5,1.06).toFixed(3));
+  }
+  function upd(){
+    ticking=false;
+    // flip section
+    const fr=clamp((scrollY-flip.offsetTop)/Math.max(1,flip.offsetHeight-innerHeight));
+    const f=clamp((fr-.38)/.3);
+    hold.style.setProperty('--f',f.toFixed(3));
+    la.style.opacity=(1-clamp((fr-.3)/.18)).toFixed(3);
+    la.style.transform='rotateX('+(clamp((fr-.3)/.2)*-80)+'deg)';
+    lb.style.opacity=clamp((fr-.45)/.18).toFixed(3);
+    lb.style.transform='rotateX('+((1-clamp((fr-.42)/.22))*80)+'deg)';
+    // chat story
+    const p=clamp((scrollY-story.offsetTop)/Math.max(1,story.offsetHeight-innerHeight));
+    let i=0; while(i<3 && p>=B[i+1]) i++;
+    const t=clamp((p-B[i])/(B[i+1]-B[i]));
+    if(i!==cur){cur=i;
+      caps.forEach((el,k)=>{el.classList.toggle('on',k===i);el.setAttribute('aria-hidden',k===i?'false':'true')});
+      rail.forEach((el,k)=>{el.classList.toggle('on',k===i);el.classList.toggle('done',k<i)});
+    }
+    // phone flips in like a card
+    const ry = (p<=0 && scrollY<story.offsetTop) ? 75 : (1-clamp(p/.07))*75;
+    phone.style.setProperty('--ry', ry.toFixed(1)+'deg');
+    // conversation steps: 0 none … 7 = all six messages + mission card
+    let step;
+    if(i===0) step = t>.8 ? .5 : 0;
+    else if(i===1) step = 1 + t*3;      // u1 a1 u2 a2
+    else if(i===2) step = 4 + t*3.2;    // u3 a3 card
+    else step = 7.2;
+    sg1.classList.toggle('press', i===0 && t>.55);
+    chat.classList.toggle('typingu', i===0 && t>.55);
+    draft.textContent = (i===0 && t>.55 && t<=.8) ? '조금 지친 것 같아요' : '지금 떠오르는 이야기를 적어주세요…';
+    chat.classList.toggle('talking', step>=1);
+    const shown=Math.floor(step);
+    items.forEach((el,k)=>{ const h=!(k<shown); if(el.hidden!==h) el.hidden=h; });
+    const nextIsAI = items[shown] && !items[shown].classList.contains('u');
+    const showTyping = shown>=1 && shown<items.length && nextIsAI && (step-shown)>.35;
+    if(typing.hidden===showTyping) typing.hidden=!showTyping;
+    chat.classList.toggle('sos', i===3 && t>.15);
+  }
+  function req(){if(!ticking){ticking=true;requestAnimationFrame(upd)}}
+  addEventListener('scroll',req,{passive:true});
+  addEventListener('resize',()=>{fit();req()});
+  rail.forEach(b=>b.addEventListener('click',()=>{const k=+b.dataset.k;const tot=Math.max(1,story.offsetHeight-innerHeight);scrollTo({top:story.offsetTop+(B[k]+.1*(B[k+1]-B[k]))*tot,behavior:'smooth'})}));
+  fit();upd();
+})();
+</script>
+
+</body></html>
